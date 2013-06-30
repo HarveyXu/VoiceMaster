@@ -7,9 +7,34 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class Translator {
+	private String YandexKey = "trnsl.1.1.20130630T095040Z.585df14183944045.6bd3edcc178f35bfc1993ce148b1d397234247a3";
+	
+	public String TranslateText(String sourceText, String sourceLanguageCode, String targetLanguageCode) throws IOException{
+		String request = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=";
+		request = request + YandexKey + "&lang=" + sourceLanguageCode + "-" + targetLanguageCode + "&text" + sourceText;
+		URL url;
+		url = new URL(request);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setDoOutput(true);
+		connection.setConnectTimeout(60000);
+		connection.setUseCaches(false);
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				connection.getInputStream()));
+		String translatedString;
+		while ((translatedString = in.readLine()) != null) {
+			System.out.println(translatedString);
+		}
+		
+		return null;
+		
+	}
+	
+	
 	public String GetTextOfSpeech(String pathOfSpeechFile, String language) throws IOException
 	{	    
 	    File file = new File(pathOfSpeechFile);
@@ -44,7 +69,6 @@ public class Translator {
 		wr.write(speechData);
 		wr.flush();
 		wr.close();
-		connection.disconnect();
 
 		System.out.println("Done");
 
@@ -54,6 +78,8 @@ public class Translator {
 		while ((decodedString = in.readLine()) != null) {
 			System.out.println(decodedString);
 		}
+		
+		connection.disconnect();
 		return null;
 	} 
 
