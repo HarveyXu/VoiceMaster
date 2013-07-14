@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class Main extends FragmentActivity implements ActionBar.OnNavigationListener {
@@ -48,6 +49,12 @@ public class Main extends FragmentActivity implements ActionBar.OnNavigationList
                                 getString(R.string.title_section3),
                         }),
                 this);
+        
+        Spinner spinner = (Spinner) findViewById(R.id.spinner1);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.Language_Array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 
     /**

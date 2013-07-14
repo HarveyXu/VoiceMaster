@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">VoiceMaster</string>
     <string name="action_settings">Settings</string>
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
-
+    <string-array name="Language_Array">
+        <item >English</item>
+        <item >Franch</item>
+        <item >Slovakia</item>
+        <item >Chinese</item>
+    </string-array>
 </resources>
