@@ -8,9 +8,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Main$DummySectionFragment" >
 
-    <TextView
-        android:id="@+id/section_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+   	<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+	</LinearLayout>
 </RelativeLayout>

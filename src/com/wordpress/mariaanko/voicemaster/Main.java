@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.os.Bundle;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -13,8 +14,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -26,6 +29,10 @@ public class Main extends FragmentActivity implements ActionBar.OnNavigationList
      */
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
 
+    private Spinner fromLngSpinner;
+    private Spinner toLngSpinner;
+    private Button  btnStart;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,13 +57,32 @@ public class Main extends FragmentActivity implements ActionBar.OnNavigationList
                         }),
                 this);
         
-        Spinner spinner = (Spinner) findViewById(R.id.spinner1);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.Language_Array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        initializeSpinner();
+        btnStart = (Button)findViewById(R.id.button1);
+        btnStart.setOnClickListener(new OnClickListener()
+        {
+        	public void onClick(View v)
+        	{
+        		 Intent itent=new Intent();
+                 itent.setClass(Main.this, VoiceRecord.class);
+                 startActivity(itent);
+                 Main.this.finish();
+        	}
+        });
+       
     }
 
+    private void initializeSpinner()
+    {
+    	fromLngSpinner = (Spinner) findViewById(R.id.spinner1);
+         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                 R.array.Language_Array, android.R.layout.simple_spinner_item);
+         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+         fromLngSpinner.setAdapter(adapter);
+         
+         toLngSpinner = (Spinner) findViewById(R.id.spinner2);
+         toLngSpinner.setAdapter(adapter);
+    }
     /**
      * Backward-compatible version of {@link ActionBar#getThemedContext()} that
      * simply returns the {@link android.app.Activity} if
@@ -126,8 +152,8 @@ public class Main extends FragmentActivity implements ActionBar.OnNavigationList
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main_dummy, container, false);
-            TextView dummyTextView = (TextView) rootView.findViewById(R.id.section_label);
-            dummyTextView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
+            //TextView dummyTextView = (TextView) rootView.findViewById(R.id.section_label);
+           // dummyTextView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
     }

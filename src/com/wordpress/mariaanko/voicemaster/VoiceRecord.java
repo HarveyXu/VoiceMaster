@@ -27,6 +27,8 @@ public class VoiceRecord extends Activity
     private PlayButton   mPlayButton = null;
     private MediaPlayer   mPlayer = null;
 
+    private LinearLayout mlLayout = null;
+    
     private void onRecord(boolean start) {
         if (start) {
             startRecording();
@@ -133,21 +135,22 @@ public class VoiceRecord extends Activity
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
-        LinearLayout ll = new LinearLayout(this);
+        setContentView(R.layout.voice_record_view);
+        mlLayout = (LinearLayout) findViewById(R.layout.voice_record_view);
+        
         mRecordButton = new RecordButton(this);
-        ll.addView(mRecordButton,
+        mlLayout.addView(mRecordButton,
             new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 0));
         mPlayButton = new PlayButton(this);
-        ll.addView(mPlayButton,
+        mlLayout.addView(mPlayButton,
             new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 0));
-        setContentView(ll);
+        
     }
 
     @Override
