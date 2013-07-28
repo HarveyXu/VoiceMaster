@@ -1,33 +1,39 @@
 package com.wordpress.mariaanko.voicemaster;
 
-import android.app.Activity;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.media.MediaRecorder;
 import android.media.MediaPlayer;
 
+import java.io.File;
 import java.io.IOException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 
 
 public class VoiceRecord extends Activity
 {
     private static final String LOG_TAG = "AudioRecordTest";
-    private static String mFileName = null;
+    private static String m_fileName = null;
 
     private RecordButton mRecordButton = null;
-    private MediaRecorder mRecorder = null;
+    private MediaRecorder m_Recorder = null;
 
     private PlayButton   mPlayButton = null;
     private MediaPlayer   mPlayer = null;
 
-    private LinearLayout mlLayout = null;
+    private LinearLayout m_layout = null;
+    private Translator m_translator = new Translator();
+    private Thread m_thread = null;
     
     private void onRecord(boolean start) {
         if (start) {
@@ -48,7 +54,7 @@ public class VoiceRecord extends Activity
     private void startPlaying() {
         mPlayer = new MediaPlayer();
         try {
-            mPlayer.setDataSource(mFileName);
+            mPlayer.setDataSource(m_fileName);
             mPlayer.prepare();
             mPlayer.start();
         } catch (IOException e) {
@@ -61,40 +67,68 @@ public class VoiceRecord extends Activity
         mPlayer = null;
     }
 
-    private void startRecording() {
-        mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mRecorder.setOutputFile(mFileName);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+    private Boolean startRecording() {
+    	m_fileName = getNewFileName();
+    	if (m_fileName == null){
+    		return false;
+    	}
+        m_Recorder = new MediaRecorder();
+        m_Recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        m_Recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        m_Recorder.setOutputFile(m_fileName);
+        m_Recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
         try {
-            mRecorder.prepare();
+            m_Recorder.prepare();
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
+            return false;
         }
 
-        mRecorder.start();
+        m_Recorder.start();
+        return false;
     }
 
     private void stopRecording() {
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;
+        m_Recorder.stop();
+        m_Recorder.release();
+        m_Recorder = null;
+        
+        if (m_thread == null){
+			m_thread = new Thread(runnable);
+			m_thread.start();
+		} else {
+			Toast.makeText(getApplication(),
+					getApplication().getString(R.string.thread_started),
+					Toast.LENGTH_LONG).show();
+		}
     }
+    
+    Runnable runnable = new Runnable() {
+    	 public void run() {
+    		 String text;
+			try {
+				text = m_translator.GetTextOfSpeech(m_fileName, "en-US");
+				text += "";
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	 }
+    };
 
     class RecordButton extends Button {
-        boolean mStartRecording = true;
+        boolean m_startRecording = true;
 
         OnClickListener clicker = new OnClickListener() {
             public void onClick(View v) {
-                onRecord(mStartRecording);
-                if (mStartRecording) {
+                onRecord(m_startRecording);
+                if (m_startRecording) {
                     setText("Stop recording");
                 } else {
                     setText("Start recording");
                 }
-                mStartRecording = !mStartRecording;
+                m_startRecording = !m_startRecording;
             }
         };
 
@@ -126,39 +160,53 @@ public class VoiceRecord extends Activity
             setOnClickListener(clicker);
         }
     }
-
-    public VoiceRecord() {
-        mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        mFileName += "/audiorecordtest.3gp";
+    
+    private String getNewFileName(){
+    	String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+    	File vmDir = new File(sdPath + "/VoiceMaster");
+    	if (!vmDir.exists()){
+    		Boolean created = vmDir.mkdir();
+    		if (!created){
+    			return null;
+    		}
+    	}
+    	
+    	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+    	Date curDate = new Date(System.currentTimeMillis());
+    	String strPath = formatter.format(curDate);
+    	return vmDir.getPath() + "/" + strPath + ".3gp";
     }
-
+    
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.voice_record_view);
-        mlLayout = (LinearLayout) findViewById(R.layout.voice_record_view);
+        m_layout = new LinearLayout(this);
+        //setContentView(R.layout.voice_record_view);
+        //m_layout = (LinearLayout) findViewById(R.layout.voice_record_view);
         
         mRecordButton = new RecordButton(this);
-        mlLayout.addView(mRecordButton,
-            new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                0));
-        mPlayButton = new PlayButton(this);
-        mlLayout.addView(mPlayButton,
+        m_layout.addView(mRecordButton,
             new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 0));
         
+        mPlayButton = new PlayButton(this);
+        m_layout.addView(mPlayButton,
+            new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                0));
+        
+        setContentView(m_layout);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (mRecorder != null) {
-            mRecorder.release();
-            mRecorder = null;
+        if (m_Recorder != null) {
+            m_Recorder.release();
+            m_Recorder = null;
         }
 
         if (mPlayer != null) {

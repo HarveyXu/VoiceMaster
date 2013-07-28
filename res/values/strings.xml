@@ -11,4 +11,5 @@
         <item >Slovakia</item>
         <item >Chinese</item>
     </string-array>
+    <string name="thread_started">Thread already started</string>
 </resources>

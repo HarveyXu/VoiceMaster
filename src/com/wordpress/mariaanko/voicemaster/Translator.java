@@ -54,7 +54,7 @@ public class Translator {
 		FileInputStream fis = new FileInputStream(file);
 		fis.read(speechData);
 
-		String request = "https://www.google.com/" + "speech-api/v1/recognize?"
+		String request = "https://www.google.com/speech-api/v1/recognize?"
 				+ "xjerr=1&client=speech2text&lang=" + language
 				+ "&maxresults=10";
 
